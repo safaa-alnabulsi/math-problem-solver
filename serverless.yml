@@ -1,0 +1,55 @@
+service: math-problem-solver
+
+frameworkVersion: "2.23.0"
+
+provider:
+  name: aws
+  runtime: python3.7
+  region: eu-west-1
+
+package:
+  exclude:
+    - ./**
+  include:
+    - lambdas/src/*.py
+    - lambdas/*.py
+
+plugins:
+  - serverless-plugin-aws-alerts
+
+custom:
+  alerts:
+    dashboards: true
+    topics:
+      alarm:
+        topic: ${self:service}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: youremail@domain.com # Change this to your email address
+    alarms:
+      - functionThrottles
+      - functionErrors
+      - functionInvocations
+      - functionDuration
+
+functions:
+  factorial:
+    handler: lambdas/factorial_handler.endpoint
+    events:
+      - http:
+          path: factorial
+          method: post
+
+  fibonacci:
+    handler: lambdas/fibonacci_handler.endpoint
+    events:
+      - http:
+          path: fibonacci
+          method: post
+
+  ackermann:
+    handler: lambdas/ackermann_handler.endpoint
+    events:
+      - http:
+          path: ackermann
+          method: post
